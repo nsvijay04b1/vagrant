@@ -1,0 +1,224 @@
+*** all box related 1 file ***
+***  all Configuration keys 1 file ***
+*** vagrant share & cli pending https://www.vagrantup.com/docs/cli/ & 	https://www.vagrantup.com/docs/share/ ***
+
+create your custom base box package from modifications on another base box.
+
+$ vagrant package --base my_base_box
+$ vagrant box add my_box package.box
+$ mkdir test_environment
+$ cd test_environment
+$ vagrant init my_box
+$ vagrant up
+$ vagrant ssh
+
+
+$vagrant status
+Current machine states:
+
+master                    not created (virtualbox)
+client                    not created (virtualbox)
+
+
+
+If Vagrant sees a machine name within forward slashes, it assumes you are using a regular expression.
+so, below command boots up all machines like follower0, follower1, follower2 .. follower9
+vagrant up /follower[0-9]/
+
+
+
+An important concept to understand is how Vagrant loads the Vagrantfile. Actually, there are a series of Vagrantfiles that Vagrant will load. Each subsequent Vagrantfile loaded will override any settings set previously. The Vagrantfiles that are loaded and the order they’re loaded is shown below:
+
+1.	Vagrantfile packaged with the box that is to be used for a given machine.
+2.	Vagrantfile in your Vagrant home directory (defaults to ~/.vagrant.d). This lets you specify some defaults for your system user.
+3.	Vagrantfile from the project directory. This is the Vagrantfile that you will be modifying most of the time.
+4.	Multi-machine overrides if any.
+5.	Provider-specific overrides, if any.
+
+
+Therefore, the Vagrantfile in the project directory overwrites any conflicting configuration from the home directory which overwrites any conflicting configuration from a box which overwrites any conflicting configuration from the default file.
+
+
+
+
+default sudo user:- vagrant
+default sudo password :- vagrant
+
+change using Configuration key: config.ssh.username
+
+
+config.vm.customize ["modifyvm", :id, "--memory", 1024]
+config.vm.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+
+
+
+Configuration key: config.vm.boot_mode
+
+Default value: :headless
+
+Specifies the mode the VM is booted into. By default this is “headless” which makes it so that the VM runs headless, or without a visible display. This can also be changed to “gui” which will show a display. “gui” is useful if you are debugging an issue with Vagrant or require a VM with a windowing system that you can use.
+
+
+Configuration key: config.vm.auto_port_range
+
+Default value: 2200..2250
+
+Forwarded ports defined for your VM can sometimes collide with other VMs. For example, you might forward port 80 to 8080 in multiple virtual machines. Vagrant has the ability to automatically resolve forwarded port collisions for you when they’re detected. When these are resolved, it chooses a port from this configured range. The value of this configuration parameter should be a Ruby Range object.
+
+
+config.vm.box_url
+Configuration key: config.vm.box_url
+
+Default value: nil
+
+This points to a valid URL to the box that the VM requires. This is optional and is only used if the box doesn’t already exist on the user’s system. If vagrant up is called and the box is not found, this value is used to download the box.
+
+
+
+Configuration key: config.vagrant.dotfile_name
+
+Default value: ".vagrant"
+
+Vagrant puts a “dotfile” into each Vagrant-managed working directory in order to keep track of some basic state of the virtual machine. By default, this is named “.vagrant” and is not meant to be checked into version control. You can control what the name of this file is using this configuration value.
+
+Configuration key: config.ssh.forward_x11
+
+Default value: false
+
+If true, then any SSH connections made will enable X11 forwarding.
+
+Configuration key: config.ssh.max_tries
+
+Default value: 100
+
+This is the maximum number of tries that Vagrant will attempt to connect via SSH to the VM to determine when it is ready to communicate. Once this threshold is reached, then commands such as vagrant up will error saying that SSH on the VM never became ready.
+
+
+PLugins ....
+
+# Installing a plugin from a known gem source
+$ vagrant plugin install my-plugin
+
+# Installing a plugin from a local file source
+$ vagrant plugin install /path/to/my-plugin.gem
+
+# updating all or a specific plugin
+$vagrant plugin update  ( all plugins my default)
+$vagrant plugin update my-plugin
+
+#uninstalling a specific plugin
+$ vagrant plugin uninstall my-plugin
+
+#listing existing plugins
+$ vagrant plugin list
+
+
+Vagrant push .....
+
+
+Usage
+
+The Vagrant Push FTP and SFTP strategy is defined in the Vagrantfile using the ftp key:
+
+config.push.define "ftp" do |push|
+  push.host = "ftp.company.com"
+  push.username = "username"
+  push.password = "password"
+end
+
+And then push the application to the FTP or SFTP server:
+
+$ vagrant push
+
+config.push.define "heroku" do |push|
+  push.app = "my_application"
+end
+
+^
+
+push can be done to heroku (  public PAAS provider that makes it easy to deploy an application )
+or  Atlas is HashiCorp's commercial offering to bring your Vagrant development environments to product
+or ftp to a server
+or local Exec strategy allows the user to invoke an arbitrary shell command or script as part of a push
+
+
+debugging ......
+
+$ VAGRANT_LOG=info vagrant up
+On Windows, multiple steps are required:
+
+$ set VAGRANT_LOG=info
+$ vagrant up
+You can also get the debug level output using the --debug command line option. For example:
+
+$ vagrant up --debug
+On Linux and Mac, if you are saving the output to a file, you may need to redirect stderr and stdout using &>:
+
+$ vagrant up --debug &> vagrant.log
+
+
+
+
+virtualbox .......
+
+The virtual machine created in VirtualBox can use any configuration you would like, but Vagrant has some hard requirements:
+
+The first network interface (adapter 1) must be a NAT adapter. Vagrant uses this to connect the first time.
+
+The MAC address of the first network interface (the NAT adapter) should be noted, since you will need to put it in a Vagrantfile later as the value for config.vm.base_mac. To get this value, use the VirtualBox GUI.
+
+
+config.vm.provider "virtualbox" do |v|
+  v.memory = 1024
+  v.cpus = 2
+end
+
+
+Loop Over VM Definitions ....
+
+(1..3).each do |i|
+  config.vm.define "node-#{i}" do |node|
+    node.vm.provision "shell",
+      inline: "echo hello from node #{i}"
+  end
+end
+
+for i in 1..3 do
+  config.vm.define "node-#{i}" do |node|
+    node.vm.provision "shell",
+      inline: "echo hello from node #{i}"
+  end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
